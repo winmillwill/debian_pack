@@ -1,0 +1,113 @@
+{
+  "variables": {
+      "ssh_user": "vagrant",
+      "ssh_pass": "vagrant",
+      "hostname": "vagrantup.com"
+  },
+  "builders": [
+    {
+      "name": "virtualbox",
+      "type": "virtualbox",
+      "guest_os_type": "Debian_64",
+      "iso_url": "http://cdimage.debian.org/cdimage/archive/6.0.8/amd64/iso-cd/debian-6.0.8-amd64-netinst.iso",
+      "iso_checksum": "d675b89fa6b241e6e40783296a5bd92e",
+      "iso_checksum_type": "md5",
+      "ssh_username": "{{user `ssh_user`}}",
+      "ssh_password": "{{user `ssh_pass`}}",
+      "http_directory": ".",
+      "shutdown_command": "echo {{user `ssh_user`}} | sudo -S shutdown -hP now",
+      "boot_command" : [
+            "<esc><esc><wait>",
+            "install ",
+            "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+            "debian-installer=en_US ",
+            "auto ",
+            "locale=en_US ",
+            "kbd-chooser/method=us ",
+            "netcfg/get_hostname={{ .Name }} <wait>",
+            "netcfg/get_domain=vagrantup.com <wait>",
+            "fb=false ",
+            "debconf/frontend=noninteractive ",
+            "console-setup/ask_detect=false ",
+            "console-keymaps-at/keymap=us ",
+            "keyboard-configuration/xkb-keymap=us ",
+            "priority=critical ",
+            "<enter>"
+        ]
+    },
+    {
+      "name": "vmware",
+      "type": "vmware",
+      "guest_os_type": "debian6-64",
+      "iso_url": "http://cdimage.debian.org/cdimage/archive/6.0.8/amd64/iso-cd/debian-6.0.8-amd64-netinst.iso",
+      "iso_checksum": "d675b89fa6b241e6e40783296a5bd92e",
+      "iso_checksum_type": "md5",
+      "ssh_username": "{{user `ssh_user`}}",
+      "ssh_password": "{{user `ssh_pass`}}",
+      "http_directory": ".",
+      "shutdown_command": "echo {{user `ssh_user`}} | sudo -S shutdown -hP now",
+      "boot_command" : [
+            "<esc><esc><wait>",
+            "install ",
+            "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+            "debian-installer=en_US ",
+            "auto ",
+            "locale=en_US ",
+            "kbd-chooser/method=us ",
+            "netcfg/get_hostname={{ .Name }} <wait>",
+            "netcfg/get_domain=vagrantup.com <wait>",
+            "fb=false ",
+            "debconf/frontend=noninteractive ",
+            "console-setup/ask_detect=false ",
+            "console-keymaps-at/keymap=us ",
+            "keyboard-configuration/xkb-keymap=us ",
+            "priority=critical ",
+            "<enter>"
+        ]
+    },
+    {
+      "type": "amazon-ebs",
+      "name": "aws",
+      "region": "us-east-1",
+      "source_ami": "ami-7ce17315",
+      "instance_type": "t1.micro",
+      "ssh_username": "admin",
+      "ami_name": "packer-quick-start {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["sudo apt-get update && sudo apt-get install -q -y curl"]
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo adduser --disabled-password --gecos \"\" vagrant && echo \"vagrant:vagrant\"|sudo chpasswd"],
+      "only": ["aws"]
+    },
+    {
+      "type": "chef-solo",
+      "cookbook_paths": ["vendor/cookbooks"],
+      "data_bags_path": "data_bags",
+      "roles_path": "roles",
+      "json": {
+        "build_essential": {
+          "compiletime": true
+        },
+        "promet_php": {
+          "memory_limit": "512M"
+        },
+        "mysql": {
+          "server_debian_password": "pass",
+          "server_root_password": "pass",
+          "server_repl_password": "pass"
+        }
+      },
+      "run_list": [
+        "role[db_master]",
+        "recipe[easy_drupal]"
+      ]
+    }
+  ],
+  "post-processors": ["vagrant"]
+}
