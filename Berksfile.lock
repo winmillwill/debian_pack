@@ -3,7 +3,7 @@
     "easy_drupal": {
       "locked_version": "0.1.0",
       "git": "git://github.com/winmillwill/chef-easy_drupal.git",
-      "ref": "d116323b385a2b41642781d7aeb06c1b3e1dd998"
+      "ref": "9c68152e072f0e9cf19d559fa8796fb88fe7c0e7"
     },
     "promet_php": {
       "locked_version": "0.1.0",
@@ -13,7 +13,7 @@
     "drupal": {
       "locked_version": "1.2.0",
       "git": "git://github.com/winmillwill/drupal_cookbook.git",
-      "ref": "eb55df8df3d8baa02a09a8b1642cd5ce278fbcc6"
+      "ref": "6b682516afc0ecd651d6d5e48a86dff4ebdc5cea"
     },
     "mysql": {
       "locked_version": "3.0.12"
@@ -46,7 +46,7 @@
       "locked_version": "1.2.0"
     },
     "ark": {
-      "locked_version": "0.4.0"
+      "locked_version": "0.4.2"
     },
     "hostsfile": {
       "locked_version": "2.4.2"

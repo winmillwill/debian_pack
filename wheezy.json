@@ -9,14 +9,15 @@
       "name": "virtualbox",
       "type": "virtualbox",
       "guest_os_type": "Debian_64",
-      "iso_url": "http://cdimage.debian.org/cdimage/archive/6.0.8/amd64/iso-cd/debian-6.0.8-amd64-netinst.iso",
-      "iso_checksum": "d675b89fa6b241e6e40783296a5bd92e",
+      "iso_url": "http://cdimage.debian.org/debian-cd/7.3.0/amd64/iso-cd/debian-7.3.0-amd64-netinst.iso",
+      "iso_checksum": "72473e8a5e65b61acc7efde90d9f71d1",
       "iso_checksum_type": "md5",
       "ssh_username": "{{user `ssh_user`}}",
       "ssh_password": "{{user `ssh_pass`}}",
       "http_directory": ".",
-      "vm_name": "promet-squeeze",
-      "shutdown_command": "echo {{user `ssh_pass`}} | sudo -S shutdown -hP now",
+      "shutdown_command": "echo {{user `ssh_user`}} | sudo -S shutdown -hP now",
+      "vm_name": "promet-wheezy",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
       "boot_command" : [
             "<esc><esc><wait>",
             "install ",
@@ -39,14 +40,14 @@
     {
       "name": "vmware",
       "type": "vmware",
-      "guest_os_type": "debian6-64",
-      "iso_url": "http://cdimage.debian.org/cdimage/archive/6.0.8/amd64/iso-cd/debian-6.0.8-amd64-netinst.iso",
-      "iso_checksum": "d675b89fa6b241e6e40783296a5bd92e",
+      "guest_os_type": "debian7-64",
+      "iso_url": "http://cdimage.debian.org/debian-cd/7.3.0/amd64/iso-cd/debian-7.3.0-amd64-netinst.iso",
+      "iso_checksum": "72473e8a5e65b61acc7efde90d9f71d1",
       "iso_checksum_type": "md5",
       "ssh_username": "{{user `ssh_user`}}",
       "ssh_password": "{{user `ssh_pass`}}",
       "http_directory": ".",
-      "shutdown_command": "echo {{user `ssh_pass`}} | sudo -S shutdown -hP now",
+      "shutdown_command": "echo {{user `ssh_user`}} | sudo -S shutdown -hP now",
       "boot_command" : [
             "<esc><esc><wait>",
             "install ",
@@ -70,16 +71,22 @@
       "type": "amazon-ebs",
       "name": "aws",
       "region": "us-east-1",
-      "source_ami": "ami-7ce17315",
+      "source_ami": "ami-db2278b2",
+      "ssh_timeout": "10m",
       "instance_type": "t1.micro",
       "ssh_username": "admin",
-      "ami_name": "packer-squeeze {{timestamp}}"
+      "ami_name": "packer-wheezy {{timestamp}}"
     }
   ],
   "provisioners": [
     {
       "type": "shell",
-      "scripts": ["base.sh"]
+      "script": "script/base.sh"
+    },
+    {
+      "type": "shell",
+      "script": "script/vbox_guest.sh",
+      "only": ["virtualbox"]
     },
     {
       "type": "chef-solo",
@@ -133,9 +140,9 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "squeeze_{{.Provider}}.box",
+      "output": "wheezy_{{.Provider}}.box",
       "aws": {
-          "vagrantfile_template": "Vagrantfile.aws.go"
+        "vagrantfile_template": "Vagrantfile.aws.go"
       }
     }
   ]
